@@ -31,7 +31,7 @@
 
         // Create a new map object centered on the location
         var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 12,
+          zoom: 11,
           center: location,
           styles: [
             {
@@ -96,8 +96,21 @@
         });
 
         fetchHoodJSON().then(hoods => {
-          map.data.addGeoJson(hoods)
-          map.data.setStyle({strokeColor: "black", strokeWeight: .5})
+          let features = map.data.addGeoJson(hoods)
+          let selectedFeatureProperty = 'População 2010'
+          let selectedFeaturePropertyMax = 0
+          for (let feature of features) {
+            selectedFeaturePropertyMax = Math.max((feature.getProperty(selectedFeatureProperty) || 0), selectedFeaturePropertyMax)
+          }
+          for (let feature of features) {
+            feature.setProperty('density', (feature.getProperty(selectedFeatureProperty) || 0) / selectedFeaturePropertyMax)
+          }
+          map.data.setStyle((feature) => ({
+            strokeColor: "black",
+            strokeWeight: .5,
+            fillColor: 'red',
+            fillOpacity: feature.getProperty('density')
+          }))
         });
 
         fetchRobberyJSON().then(robberyData => {
