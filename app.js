@@ -1,37 +1,28 @@
-const http = require('http');
-const csv = require('csvtojson')
+const express = require('express')
+const dotenv = require('dotenv')
+const path = require('path')
+const ejs = require('ejs');
+const robberyData = require('./static/assaltos_maceio_roubo_transeunte')
+const hoodData = require('./static/bairros_maceio')
 
-const hostname = '127.0.0.1';
-const port = 3000;
+dotenv.config()
 
-const MIN_YEAR=2012;
-const LAST_YEAR=2022; // get from current year datetime?
+const app = express()
+const serverPort = (process.env.PORT && parseInt(process.env.PORT)) || 3000
 
-const dealWithData = (data) => {
-    console.log(data['BAIRRO']);
-    for (let year = MIN_YEAR; year < LAST_YEAR; year++) {
-        console.log(`${year} ${data[year]}`);
-     }
-};
+app.use(express.json())
+app.set('view engine', 'ejs')
 
-const robberyCsvFilePath = './static/assaltos_maceio_roubo_transeunte.csv'
+app.get('/', function (req, res) {
+  res.render('index', { GMAPS_API_KEY: process.env.GMAPS_API_KEY })
+})
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
+app.get('/robbery', function (req, res) {
+  res.json(robberyData)
+})
 
-  csv()
-    .fromFile(robberyCsvFilePath)
-    .then((jsonObj)=>{
-        // console log
-        // jsonObj.forEach(dealWithData); 
+app.get('/hood', function (req, res) {
+  res.json(hoodData)
+})
 
-        // json response
-        res.end(JSON.stringify(jsonObj));
-    })
-  
-});
-
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+app.listen(serverPort)
