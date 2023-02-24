@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Roubos</title>
+    <style>
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // Initialize and display the map
+      function initMap() {
+        // Set the location to display on the map
+        var location = {lat: -9.5943984, lng: -35.7567185};
+
+        // Create a new map object centered on the location
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 12,
+          center: location
+        });
+
+        // Add a marker for the location
+        // var marker = new google.maps.Marker({
+        //   position: location,
+        //   map: map,
+        //   title: 'Maceio - AL'
+        // });
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= GMAPS_API_KEY %>&callback=initMap">
+    </script>
+  </body>
+</html>
