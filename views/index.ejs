@@ -109,7 +109,7 @@
             strokeColor: "black",
             strokeWeight: .5,
             fillColor: 'red',
-            fillOpacity: feature.getProperty('density')
+            fillOpacity: Math.log(feature.getProperty('density') + 1)
           }))
         });
 
