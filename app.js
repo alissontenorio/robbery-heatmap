@@ -3,6 +3,7 @@ const dotenv = require('dotenv')
 const path = require('path')
 const ejs = require('ejs');
 const robberyData = require('./static/assaltos_maceio_roubo_transeunte')
+const hoodData = require('./static/bairros_maceio')
 
 dotenv.config()
 
@@ -18,6 +19,10 @@ app.get('/', function (req, res) {
 
 app.get('/robbery', function (req, res) {
   res.json(robberyData)
+})
+
+app.get('/hood', function (req, res) {
+  res.json(hoodData)
 })
 
 app.listen(serverPort)

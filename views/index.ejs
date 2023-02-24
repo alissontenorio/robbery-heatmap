@@ -12,6 +12,18 @@
   <body>
     <div id="map"></div>
     <script>
+      async function fetchHoodJSON() {
+        const response = await fetch('/hood');
+        const hood = await response.json();
+        return hood;
+      }
+
+      async function fetchRobberyJSON() {
+        const response = await fetch('/robbery');
+        const robbery = await response.json();
+        return robbery;
+      }
+
       // Initialize and display the map
       function initMap() {
         // Set the location to display on the map
@@ -21,6 +33,14 @@
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 12,
           center: location
+        });
+
+        fetchHoodJSON().then(hoods => {
+          map.data.addGeoJson(hoods)
+        });
+
+        fetchRobberyJSON().then(robberyData => {
+          console.log(robberyData);
         });
 
         // Add a marker for the location
