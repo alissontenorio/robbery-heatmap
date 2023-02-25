@@ -76,24 +76,33 @@
           }
 
           feature.setProperty('Domain', 'robbery');
-          feature.setProperty('Value', value);
-
-          let maxValue = 0
-          for (let feature of features) {
-            maxValue = Math.max((feature.getProperty('Value') || 0), maxValue)
-          }
-          for (let feature of features) {
-            feature.setProperty('NormalizedValue', (feature.getProperty('Value') || 0) / maxValue)
-          }
-
-          map.data.setStyle((feature) => ({
-            strokeColor: "black",
-            strokeWeight: .5,
-            fillColor: 'red',
-            fillOpacity: (Math.tanh(feature.getProperty('NormalizedValue') || 0) * .5 + .5) * .75
-            // fillOpacity: Math.log(feature.getProperty('density') + 1)
-          }))
+          feature.setProperty('Value', value || 0);
         }
+
+        let maxValue = 0
+        let avgValue = 0
+        for (let feature of features) {
+          maxValue = Math.max((feature.getProperty('Value') || 0), maxValue);
+          avgValue += feature.getProperty('Value');
+        }
+        avgValue /= features.length;
+
+        let varianceValue = features.map(f => f.getProperty('Value')).reduce((total, cur) => total + Math.pow(cur - avgValue, 2), 0) / (features.length - 1);
+        let stdValue = Math.sqrt(varianceValue);
+
+        for (let feature of features) {
+          feature.setProperty('NormalizedValue', (feature.getProperty('Value') - avgValue) / stdValue)
+        }
+
+        map.data.setStyle((feature) => ({
+          strokeColor: "black",
+          strokeWeight: .5,
+          fillColor: 'red',
+          fillOpacity: (Math.tanh(feature.getProperty('NormalizedValue') || 0) * .5 + .5) * 0.75
+          // fillOpacity: Math.log(feature.getProperty('NormalizedValue') + 1)
+        }))
+
+        window.features = features;
       }
 
       // Initialize and display the map
