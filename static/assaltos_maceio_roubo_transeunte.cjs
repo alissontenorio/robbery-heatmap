@@ -49,8 +49,7 @@ module.exports = {
       "São Jorge": 11,
       "Tabuleiro do Martins": 388,
       "Trapiche da Barra": 45,
-      "Vergel do Lago": 67,
-      "Zona Rural": 0
+      "Vergel do Lago": 67
     },
     "2013": {
       "Antares": 65,
@@ -102,8 +101,7 @@ module.exports = {
       "São Jorge": 14,
       "Tabuleiro do Martins": 442,
       "Trapiche da Barra": 72,
-      "Vergel do Lago": 78,
-      "Zona Rural": 0
+      "Vergel do Lago": 78
     },
     "2014": {
       "Antares": 132,
@@ -155,8 +153,7 @@ module.exports = {
       "São Jorge": 15,
       "Tabuleiro do Martins": 641,
       "Trapiche da Barra": 85,
-      "Vergel do Lago": 77,
-      "Zona Rural": 0
+      "Vergel do Lago": 77
     },
     "2015": {
       "Antares": 105,
@@ -208,8 +205,7 @@ module.exports = {
       "São Jorge": 25,
       "Tabuleiro do Martins": 553,
       "Trapiche da Barra": 82,
-      "Vergel do Lago": 43,
-      "Zona Rural": 0
+      "Vergel do Lago": 43
     },
     "2016": {
       "Antares": 113,
@@ -261,8 +257,7 @@ module.exports = {
       "São Jorge": 45,
       "Tabuleiro do Martins": 637,
       "Trapiche da Barra": 101,
-      "Vergel do Lago": 56,
-      "Zona Rural": 0
+      "Vergel do Lago": 56
     },
     "2017": {
       "Antares": 129,
@@ -314,8 +309,7 @@ module.exports = {
       "São Jorge": 53,
       "Tabuleiro do Martins": 652,
       "Trapiche da Barra": 136,
-      "Vergel do Lago": 167,
-      "Zona Rural": 0
+      "Vergel do Lago": 167
     },
     "2018": {
       "Antares": 120,
@@ -367,8 +361,7 @@ module.exports = {
       "São Jorge": 42,
       "Tabuleiro do Martins": 712,
       "Trapiche da Barra": 130,
-      "Vergel do Lago": 181,
-      "Zona Rural": 1
+      "Vergel do Lago": 181
     },
     "2019": {
       "Antares": 135,
@@ -420,8 +413,7 @@ module.exports = {
       "São Jorge": 42,
       "Tabuleiro do Martins": 540,
       "Trapiche da Barra": 112,
-      "Vergel do Lago": 114,
-      "Zona Rural": 0
+      "Vergel do Lago": 114
     },
     "2020": {
       "Antares": 96,
@@ -473,8 +465,7 @@ module.exports = {
       "São Jorge": 42,
       "Tabuleiro do Martins": 408,
       "Trapiche da Barra": 43,
-      "Vergel do Lago": 50,
-      "Zona Rural": 0
+      "Vergel do Lago": 50
     },
     "2021": {
       "Antares": 77,
@@ -526,8 +517,7 @@ module.exports = {
       "São Jorge": 28,
       "Tabuleiro do Martins": 265,
       "Trapiche da Barra": 53,
-      "Vergel do Lago": 49,
-      "Zona Rural": 0
+      "Vergel do Lago": 49
     },
     "2022": {
       "Antares": 56,
@@ -579,7 +569,6 @@ module.exports = {
       "São Jorge": 42,
       "Tabuleiro do Martins": 278,
       "Trapiche da Barra": 40,
-      "Vergel do Lago": 33,
-      "Zona Rural": 0
+      "Vergel do Lago": 33
     }
   }

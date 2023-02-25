@@ -1,26 +1,44 @@
-const robberyData = require('../static/assaltos_maceio_roubo_transeunte.cjs')
+const hoodRobberyHistory = require('../static/assaltos_maceio_roubo_transeunte.cjs')
+const hoodHistoryPopulation = require('../static/hoodHistoryPopulation.cjs')
 const nj = require('../vendor/numjs.min.cjs')
 const path = require('path')
 
-let preprocessedData = Object.keys(robberyData).reduce((objYear, year) => {
-    let valuesByYear = {'robbery': []};
+let preprocessedData = Object.keys(hoodRobberyHistory).reduce((objYear, year) => {
+    let valuesByYear = {'robbery': [], 'population': [], 'robberyPopulationRatio': []};
 
     // denormalize data
-    objYear[year] = Object.keys(robberyData[year]).reduce((objHood, hoodName) => {
-        valuesByYear['robbery'].push(robberyData[year][hoodName])
-        objHood[hoodName] = {robbery: robberyData[year][hoodName]};
+    objYear[year] = Object.keys(hoodRobberyHistory[year]).reduce((objHood, hoodName) => {
+        let robberyValue = hoodRobberyHistory[year][hoodName];
+        let populationValue = hoodHistoryPopulation['2010'][hoodName];
+        let robberyPopulationValue = populationValue != 0 ? robberyValue / populationValue : 0;
+
+        if (!populationValue) {
+            console.warn(`The population value couldn't be found for '${hoodName}' hood.`);
+        }
+
+        populationValue ||= 0;
+
+        valuesByYear['robbery'].push(robberyValue)
+        valuesByYear['population'].push(populationValue)
+        valuesByYear['robberyPopulationRatio'].push(robberyPopulationValue)
+        objHood[hoodName] = {
+            'robbery': robberyValue,
+            'population': populationValue,
+            'robberyPopulationRatio': robberyPopulationValue
+        };
         return objHood;
     }, {})
 
     // calculate stats
-    valuesByYear['robbery'] = nj.array(valuesByYear['robbery'])
-    objYear[year]['metrics'] = {
-        'robbery': {
-            total: valuesByYear['robbery'].sum(),
-            mean: valuesByYear['robbery'].mean(),
-            std: valuesByYear['robbery'].std(),
-            min: valuesByYear['robbery'].min(),
-            max: valuesByYear['robbery'].max(),
+    objYear[year]['metrics'] = {}
+    for (let attribute of Object.keys(valuesByYear)) {
+        valuesByYear[attribute] = nj.array(valuesByYear[attribute])
+        objYear[year]['metrics'][attribute] = {
+            total: valuesByYear[attribute].sum(),
+            mean: valuesByYear[attribute].mean(),
+            std: valuesByYear[attribute].std(),
+            min: valuesByYear[attribute].min(),
+            max: valuesByYear[attribute].max(),
         }
     }
 
@@ -28,7 +46,9 @@ let preprocessedData = Object.keys(robberyData).reduce((objYear, year) => {
     for (let hoodName in objYear[year]) {
         if (hoodName != 'metrics') {
             let objHood = objYear[year][hoodName];
+            objHood['populationNormalized'] = (objHood['population'] - objYear[year]['metrics']['population']['mean']) / objYear[year]['metrics']['population']['std'];
             objHood['robberyNormalized'] = (objHood['robbery'] - objYear[year]['metrics']['robbery']['mean']) / objYear[year]['metrics']['robbery']['std'];
+            objHood['robberyPopulationRatioNormalized'] = (objHood['robberyPopulationRatio'] - objYear[year]['metrics']['robberyPopulationRatio']['mean']) / objYear[year]['metrics']['robberyPopulationRatio']['std'];
         }
     }
 

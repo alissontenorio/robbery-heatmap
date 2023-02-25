@@ -20,8 +20,5 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
-  },
-  "nodemonConfig": {
-    "ignore": ["static/*"]
   }
 }

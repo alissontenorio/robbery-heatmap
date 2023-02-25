@@ -64,16 +64,20 @@
       function updateFeatures(map, features, dataByHood) {
         for (feature of features) {
           let hoodName = feature.getProperty('Bairro');
+          let hoodData = dataByHood[hoodName];
+
+          feature.setProperty('Data', hoodData);
+
+          // TODO: deprecate
           let attrName = 'robbery';
-          let attrValue = dataByHood[hoodName] && dataByHood[hoodName][attrName];
-          let attrValueNormalized = dataByHood[hoodName] && dataByHood[hoodName][`${attrName}Normalized`];
+          let attrValue = hoodData && hoodData[attrName];
+          let attrValueNormalized = hoodData && hoodData[`${attrName}Normalized`];
 
           if (typeof(attrValue) !== 'number') {
             console.warn(`Couldn't find '${attrName}' data for '${hoodName}'.`);
           }
 
           attrValue ||= 0;
-
           feature.setProperty('ValueDomain', attrName);
           feature.setProperty('Value', attrValue);
           feature.setProperty('ValueNormalized', attrValueNormalized || attrValue);
@@ -83,8 +87,8 @@
           strokeColor: "black",
           strokeWeight: .5,
           fillColor: 'red',
-          fillOpacity: (Math.tanh(feature.getProperty('ValueNormalized') || 0) * .5 + .5) * 0.75
-          // fillOpacity: Math.log(feature.getProperty('ValueNormalized') + 1)
+          fillOpacity: (Math.tanh(feature.getProperty('Data')['robberyPopulationRatioNormalized'] || 0) * .5 + .5) * 0.75
+          // fillOpacity: Math.log(feature.getProperty('Value') + 1)
         }))
       }
 
