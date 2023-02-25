@@ -3,6 +3,39 @@
   <head>
     <title>Roubos</title>
     <style>
+      * {
+        padding: 0px;
+        margin: 0px;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+      }
+
+      input[type=range].years {
+        width: 100%;
+      }
+
+      datalist.years {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      #map-container {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #map-controls {
+        width: 80%;
+        align-self: center;
+      }
+
       #map {
         height: 500px;
         width: 100%;
@@ -10,7 +43,15 @@
     </style>
   </head>
   <body>
-    <div id="map"></div>
+    <div id="map-container">
+      <div id="map"></div>
+      <div id="map-controls" hidden>
+        <input type="range" min="0" max="1" list="years" class="years">
+        <datalist id="years" class="years">
+        </datalist>
+      </div>
+    </div>
+
     <script>
       async function fetchHoodJSON() {
         const response = await fetch('/hood');
@@ -22,6 +63,37 @@
         const response = await fetch('/robbery');
         const robbery = await response.json();
         return robbery;
+      }
+
+      function updateFeatures(map, features, robberyData, year) {
+        for (feature of features) {
+          let robberyByHood = robberyData[year];
+          let hoodName = feature.getProperty('Bairro');
+          let value = robberyByHood[hoodName];
+
+          if (typeof(value) !== 'number') {
+            console.warn(`The neighborhood ${hoodName} couldn't be found inside data`);
+          }
+
+          feature.setProperty('Domain', 'robbery');
+          feature.setProperty('Value', value);
+
+          let maxValue = 0
+          for (let feature of features) {
+            maxValue = Math.max((feature.getProperty('Value') || 0), maxValue)
+          }
+          for (let feature of features) {
+            feature.setProperty('NormalizedValue', (feature.getProperty('Value') || 0) / maxValue)
+          }
+
+          map.data.setStyle((feature) => ({
+            strokeColor: "black",
+            strokeWeight: .5,
+            fillColor: 'red',
+            fillOpacity: (Math.tanh(feature.getProperty('NormalizedValue') || 0) * .5 + .5) * .75
+            // fillOpacity: Math.log(feature.getProperty('density') + 1)
+          }))
+        }
       }
 
       // Initialize and display the map
@@ -103,7 +175,7 @@
           ]
         });
 
-        fetchHoodJSON().then(hoods => {
+        let featuresPromise = fetchHoodJSON().then(hoods => {
           hoods.features = hoods.features.filter(feature => {
             return !feature.geometry.coordinates.some(coords => {
               return coords.some(coord => {
@@ -113,25 +185,37 @@
             })
           })
           let features = map.data.addGeoJson(hoods)
-          let selectedFeatureProperty = 'População 2010'
-          let selectedFeaturePropertyMax = 0
-          for (let feature of features) {
-            selectedFeaturePropertyMax = Math.max((feature.getProperty(selectedFeatureProperty) || 0), selectedFeaturePropertyMax)
-          }
-          for (let feature of features) {
-            feature.setProperty('density', (feature.getProperty(selectedFeatureProperty) || 0) / selectedFeaturePropertyMax)
-          }
-          map.data.setStyle((feature) => ({
-            strokeColor: "black",
-            strokeWeight: .5,
-            fillColor: 'red',
-            fillOpacity: (Math.tanh(feature.getProperty('density')) * .5 + .5) * .75
-            // fillOpacity: Math.log(feature.getProperty('density') + 1)
-          }))
+          return features;
         });
 
-        fetchRobberyJSON().then(robberyData => {
-          console.log(robberyData);
+        fetchRobberyJSON().then(async robberyData => {
+          const years = Object.keys(robberyData).sort();
+          const yearsInput = document.querySelector('input.years');
+          const yearsDataList = document.querySelector('datalist.years');
+
+          yearsInput.setAttribute('min', years[0].toString());
+          yearsInput.setAttribute('max', years[years.length-1].toString());
+          yearsInput.value = yearsInput.getAttribute('max');
+
+          while(yearsDataList.firstChild) {
+            yearsDataList.removeChild(yearsDataList.firstChild);
+          }
+
+          for (let year of years) {
+            const newOption = document.createElement('option');
+            newOption.value = newOption.label = year;
+            yearsDataList.appendChild(newOption);
+          }
+
+          let features = await featuresPromise;
+
+          yearsInput.addEventListener('change', (evt) => {
+            updateFeatures(map, features, robberyData, yearsInput.value);
+          });
+
+          yearsInput.dispatchEvent(new Event('change'));
+
+          document.querySelector('#map-controls').removeAttribute('hidden');
         });
 
         // Add a marker for the location
