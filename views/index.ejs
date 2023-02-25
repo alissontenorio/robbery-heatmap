@@ -26,8 +26,14 @@
 
       // Initialize and display the map
       function initMap() {
+        // Maceió bounds
+        let selectedCityBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(-9.722334881080501, -35.818859918457036), // southwest corner
+          new google.maps.LatLng(-9.46099520993466, -35.541455133300786) // northeast corner
+        )
+
         // Set the location to display on the map
-        var location = {lat: -9.5943984, lng: -35.7567185};
+        var location = selectedCityBounds.getCenter()
 
         // Create a new map object centered on the location
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -96,6 +102,14 @@
         });
 
         fetchHoodJSON().then(hoods => {
+          hoods.features = hoods.features.filter(feature => {
+            return !feature.geometry.coordinates.some(coords => {
+              return coords.some(coord => {
+                let point = {lat: coord[1], lng: coord[0]}
+                return !selectedCityBounds.contains(point);
+              })
+            })
+          })
           let features = map.data.addGeoJson(hoods)
           let selectedFeatureProperty = 'População 2010'
           let selectedFeaturePropertyMax = 0
