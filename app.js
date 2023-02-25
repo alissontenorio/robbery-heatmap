@@ -1,7 +1,7 @@
 const express = require('express')
 const dotenv = require('dotenv')
-const robberyData = require('./static/assaltos_maceio_roubo_transeunte')
-const hoodData = require('./static/bairros_maceio')
+const hoodHistoryData = require('./static/hoodHistoryData')
+const hoodGeoData = require('./static/bairros_maceio')
 
 dotenv.config()
 
@@ -15,12 +15,12 @@ app.get('/', function (req, res) {
   res.render('index', { GMAPS_API_KEY: process.env.GMAPS_API_KEY })
 })
 
-app.get('/robbery', function (req, res) {
-  res.json(robberyData)
+app.get('/hood/history', function (req, res) {
+  res.json(hoodHistoryData)
 })
 
-app.get('/hood', function (req, res) {
-  res.json(hoodData)
+app.get('/hood/geo', function (req, res) {
+  res.json(hoodGeoData)
 })
 
 

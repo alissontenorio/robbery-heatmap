@@ -30,14 +30,14 @@
     </div>
     
     <script>
-      async function fetchHoodJSON() {
-        const response = await fetch('/hood');
+      async function fetchHoodGeoJSON() {
+        const response = await fetch('/hood/geo');
         const hood = await response.json();
         return hood;
       }
 
-      async function fetchRobberyJSON() {
-        const response = await fetch('/robbery');
+      async function fetchHoodHistoryJSON() {
+        const response = await fetch('/hood/history');
         const robbery = await response.json();
         return robbery;
       }
@@ -61,40 +61,30 @@
         }
       }
 
-      function updateFeatures(map, features, robberyByHood) {
+      function updateFeatures(map, features, dataByHood) {
         for (feature of features) {
           let hoodName = feature.getProperty('Bairro');
-          let value = robberyByHood[hoodName];
+          let attrName = 'robbery';
+          let attrValue = dataByHood[hoodName] && dataByHood[hoodName][attrName];
+          let attrValueNormalized = dataByHood[hoodName] && dataByHood[hoodName][`${attrName}Normalized`];
 
-          if (typeof(value) !== 'number') {
-            console.warn(`The neighborhood ${hoodName} couldn't be found inside data`);
+          if (typeof(attrValue) !== 'number') {
+            console.warn(`Couldn't find '${attrName}' data for '${hoodName}'.`);
           }
 
-          feature.setProperty('Domain', 'robbery');
-          feature.setProperty('Value', value || 0);
-        }
+          attrValue ||= 0;
 
-        let maxValue = 0
-        let avgValue = 0
-        for (let feature of features) {
-          maxValue = Math.max((feature.getProperty('Value') || 0), maxValue);
-          avgValue += feature.getProperty('Value');
-        }
-        avgValue /= features.length;
-
-        let varianceValue = features.map(f => f.getProperty('Value')).reduce((total, cur) => total + Math.pow(cur - avgValue, 2), 0) / (features.length - 1);
-        let stdValue = Math.sqrt(varianceValue);
-
-        for (let feature of features) {
-          feature.setProperty('NormalizedValue', (feature.getProperty('Value') - avgValue) / stdValue)
+          feature.setProperty('ValueDomain', attrName);
+          feature.setProperty('Value', attrValue);
+          feature.setProperty('ValueNormalized', attrValueNormalized || attrValue);
         }
 
         map.data.setStyle((feature) => ({
           strokeColor: "black",
           strokeWeight: .5,
           fillColor: 'red',
-          fillOpacity: (Math.tanh(feature.getProperty('NormalizedValue') || 0) * .5 + .5) * 0.75
-          // fillOpacity: Math.log(feature.getProperty('NormalizedValue') + 1)
+          fillOpacity: (Math.tanh(feature.getProperty('ValueNormalized') || 0) * .5 + .5) * 0.75
+          // fillOpacity: Math.log(feature.getProperty('ValueNormalized') + 1)
         }))
 
         window.features = features;
@@ -181,7 +171,7 @@
 
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('legend'));
 
-        let featuresPromise = fetchHoodJSON().then(hoods => {
+        let featuresPromise = fetchHoodGeoJSON().then(hoods => {
           hoods.features = hoods.features.filter(feature => {
             return !feature.geometry.coordinates.some(coords => {
               return coords.some(coord => {
@@ -200,8 +190,8 @@
           return features;
         });
 
-        fetchRobberyJSON().then(async robberyData => {
-          const years = Object.keys(robberyData).sort();
+        fetchHoodHistoryJSON().then(async hoodHistory => {
+          const years = Object.keys(hoodHistory).sort();
           const yearsInput = document.querySelector('input.years');
           const yearsDataList = document.querySelector('datalist.years');
 
@@ -222,8 +212,8 @@
           let features = await featuresPromise;
 
           yearsInput.addEventListener('input', (evt) => {
-            updateFeatures(map, features, robberyData[yearsInput.value]);
-            addElementsToLegend(features, robberyData);
+            updateFeatures(map, features, hoodHistory[yearsInput.value]);
+            addElementsToLegend(features, hoodHistory);
           });
 
           yearsInput.dispatchEvent(new Event('input'));
