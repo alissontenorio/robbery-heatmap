@@ -217,11 +217,11 @@
 
           let features = await featuresPromise;
 
-          yearsInput.addEventListener('change', (evt) => {
+          yearsInput.addEventListener('input', (evt) => {
             updateFeatures(map, features, robberyData[yearsInput.value]);
           });
 
-          yearsInput.dispatchEvent(new Event('change'));
+          yearsInput.dispatchEvent(new Event('input'));
 
           document.querySelector('#map-controls').removeAttribute('hidden');
         });
