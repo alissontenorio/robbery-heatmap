@@ -48,6 +48,7 @@
         for (feature of features) {
           const hoodName = feature.getProperty('Bairro');
           const value = feature.getProperty('Value');
+          const robberyPopulationRatio = feature.getProperty('Data')['robberyPopulationRatio'];
           const legendBoxDisplayDiv = document.createElement('div');
           legendBoxDisplayDiv.className = 'legend-box';
           // legendBoxDisplayDiv.style = 'background: #65BA4A;';
@@ -56,7 +57,12 @@
           legendDisplayDiv.className = 'legend-display-flex';
           
           legendDisplayDiv.appendChild(legendBoxDisplayDiv);
-          legendDisplayDiv.innerHTML += `${hoodName}: ${value}`;
+
+          legendDisplayDiv.innerHTML += `${hoodName}:`;
+          for (let entry of Object.entries({'Assaltos': value, 'Per capita': `${(robberyPopulationRatio * 2).toFixed(3)}%`})) {
+            legendDisplayDiv.innerHTML += `<br/>${entry[0]} = ${entry[1]}`;
+          }
+
           legendContent.appendChild(legendDisplayDiv);
         }
       }
