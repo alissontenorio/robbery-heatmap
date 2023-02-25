@@ -1,9 +1,10 @@
-const express = require('express')
-const dotenv = require('dotenv')
-const hoodHistoryData = require('./static/hoodHistoryData')
-const hoodGeoData = require('./static/bairros_maceio')
+"use strict";
+import express from 'express'
+import { config } from 'dotenv'
+import hoodHistoryData from './static/hoodHistoryData.js'
+import hoodGeoData from './static/bairros_maceio.js'
 
-dotenv.config()
+config()
 
 const app = express()
 const serverPort = (process.env.PORT && parseInt(process.env.PORT)) || 3000
@@ -23,9 +24,7 @@ app.get('/hood/geo', function (req, res) {
   res.json(hoodGeoData)
 })
 
-
-
 // Is this safe? Only god knows (Alcino 🧙)
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('public'));
 
 app.listen(serverPort)

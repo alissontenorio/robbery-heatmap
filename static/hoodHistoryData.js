@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   "2012": {
     "Antares": {
       "robbery": 20,

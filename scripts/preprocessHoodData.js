@@ -34,4 +34,4 @@ let preprocessedData = Object.keys(robberyData).reduce((objYear, year) => {
 }, {})
 
 // save file
-require('fs').writeFileSync(path.join(__dirname, '../static/hoodHistoryData.js'), `module.exports = ${JSON.stringify(preprocessedData, null, 2)}`);
+require('fs').writeFileSync(path.join(__dirname, '../static/hoodHistoryData.js'), `export default ${JSON.stringify(preprocessedData, null, 2)}`);
