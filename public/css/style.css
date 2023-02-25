@@ -1,0 +1,63 @@
+* {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+
+  input[type=range].years {
+    width: 100%;
+  }
+
+  datalist.years {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  #map-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #map-controls {
+    width: 80%;
+    align-self: center;
+  }
+
+  #map {
+    height: 500px;
+    width: 100%;
+  }
+
+  #legend {
+    background: white;
+    top: 5px !important;
+    right: 5px !important;
+    overflow-y: scroll;
+    max-height: 70%;
+    padding: 10px;
+  }
+
+  #legend-content {
+    padding: 10px 10px 10px 0px;
+  }
+
+  .legend-box {
+    width: 10px;
+    height: 10px;
+    border: 1px solid;
+    margin-top: 2px;
+    margin-right: 5px;
+  }
+
+  .legend-display-flex {
+    display: flex;
+    margin-bottom: 5px;
+  }

@@ -2,45 +2,7 @@
 <html>
   <head>
     <title>Roubos</title>
-    <style>
-      * {
-        padding: 0px;
-        margin: 0px;
-      }
-
-      body {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-      }
-
-      input[type=range].years {
-        width: 100%;
-      }
-
-      datalist.years {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-      }
-
-      #map-container {
-        display: flex;
-        flex-direction: column;
-      }
-
-      #map-controls {
-        width: 80%;
-        align-self: center;
-      }
-
-      #map {
-        height: 500px;
-        width: 100%;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
   </head>
   <body>
     <div id="map-container">
@@ -52,6 +14,21 @@
       </div>
     </div>
 
+    <div id="legend">
+      <h2>Número de assaltos a transeuntes:</h2>
+      <div id="legend-content"></div>
+    </div>
+
+    <div>
+      Número de assaltos a transeuntes:
+      <div id="density-info-box">?</div>
+    </div>
+    <br>
+    <div>
+      População:
+      <div id="population-info-box">?</div> pessoas
+    </div>
+    
     <script>
       async function fetchHoodJSON() {
         const response = await fetch('/hood');
@@ -63,6 +40,25 @@
         const response = await fetch('/robbery');
         const robbery = await response.json();
         return robbery;
+      }
+
+      function addElementsToLegend(features, robberyByHood) {
+        const legendContent = document.getElementById('legend-content');
+        legendContent.innerHTML = '';
+        for (feature of features) {
+          const hoodName = feature.getProperty('Bairro');
+          const value = feature.getProperty('Value');
+          const legendBoxDisplayDiv = document.createElement('div');
+          legendBoxDisplayDiv.className = 'legend-box';
+          // legendBoxDisplayDiv.style = 'background: #65BA4A;';
+          
+          const legendDisplayDiv = document.createElement('div');
+          legendDisplayDiv.className = 'legend-display-flex';
+          
+          legendDisplayDiv.appendChild(legendBoxDisplayDiv);
+          legendDisplayDiv.innerHTML += `${hoodName}: ${value}`;
+          legendContent.appendChild(legendDisplayDiv);
+        }
       }
 
       function updateFeatures(map, features, robberyByHood) {
@@ -183,6 +179,8 @@
           ]
         });
 
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('legend'));
+
         let featuresPromise = fetchHoodJSON().then(hoods => {
           hoods.features = hoods.features.filter(feature => {
             return !feature.geometry.coordinates.some(coords => {
@@ -193,6 +191,12 @@
             })
           })
           let features = map.data.addGeoJson(hoods)
+
+          map.data.addListener("mouseover", (event) => {
+            document.getElementById("density-info-box").textContent = event.feature.getProperty('Value');
+            document.getElementById("population-info-box").textContent = event.feature.getProperty('População 2010');
+          });
+
           return features;
         });
 
@@ -219,6 +223,7 @@
 
           yearsInput.addEventListener('input', (evt) => {
             updateFeatures(map, features, robberyData[yearsInput.value]);
+            addElementsToLegend(features, robberyData);
           });
 
           yearsInput.dispatchEvent(new Event('input'));
