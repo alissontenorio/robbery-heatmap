@@ -23,7 +23,9 @@ app.get('/hood', function (req, res) {
   res.json(hoodData)
 })
 
-// Is this safe? Only god knows (Alcino)
+
+
+// Is this safe? Only god knows (Alcino 🧙)
 app.use(express.static(__dirname + '/public'));
 
 app.listen(serverPort)
