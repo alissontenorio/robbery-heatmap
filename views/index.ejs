@@ -65,9 +65,8 @@
         return robbery;
       }
 
-      function updateFeatures(map, features, robberyData, year) {
+      function updateFeatures(map, features, robberyByHood) {
         for (feature of features) {
-          let robberyByHood = robberyData[year];
           let hoodName = feature.getProperty('Bairro');
           let value = robberyByHood[hoodName];
 
@@ -219,7 +218,7 @@
           let features = await featuresPromise;
 
           yearsInput.addEventListener('change', (evt) => {
-            updateFeatures(map, features, robberyData, yearsInput.value);
+            updateFeatures(map, features, robberyData[yearsInput.value]);
           });
 
           yearsInput.dispatchEvent(new Event('change'));
