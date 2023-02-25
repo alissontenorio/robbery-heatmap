@@ -1,7 +1,6 @@
 module.exports = {
     "2012": {
       "Antares": 20,
-      "Bairro não Informado": 0,
       "Barro Duro": 37,
       "Bebedouro": 18,
       "Benedito Bentes": 122,
@@ -55,7 +54,6 @@ module.exports = {
     },
     "2013": {
       "Antares": 65,
-      "Bairro não Informado": 0,
       "Barro Duro": 49,
       "Bebedouro": 23,
       "Benedito Bentes": 166,
@@ -109,7 +107,6 @@ module.exports = {
     },
     "2014": {
       "Antares": 132,
-      "Bairro não Informado": 0,
       "Barro Duro": 63,
       "Bebedouro": 41,
       "Benedito Bentes": 239,
@@ -163,7 +160,6 @@ module.exports = {
     },
     "2015": {
       "Antares": 105,
-      "Bairro não Informado": 0,
       "Barro Duro": 65,
       "Bebedouro": 58,
       "Benedito Bentes": 256,
@@ -217,7 +213,6 @@ module.exports = {
     },
     "2016": {
       "Antares": 113,
-      "Bairro não Informado": 0,
       "Barro Duro": 93,
       "Bebedouro": 53,
       "Benedito Bentes": 346,
@@ -271,7 +266,6 @@ module.exports = {
     },
     "2017": {
       "Antares": 129,
-      "Bairro não Informado": 0,
       "Barro Duro": 82,
       "Bebedouro": 67,
       "Benedito Bentes": 401,
@@ -325,7 +319,6 @@ module.exports = {
     },
     "2018": {
       "Antares": 120,
-      "Bairro não Informado": 0,
       "Barro Duro": 82,
       "Bebedouro": 65,
       "Benedito Bentes": 570,
@@ -379,7 +372,6 @@ module.exports = {
     },
     "2019": {
       "Antares": 135,
-      "Bairro não Informado": 0,
       "Barro Duro": 55,
       "Bebedouro": 45,
       "Benedito Bentes": 370,
@@ -433,7 +425,6 @@ module.exports = {
     },
     "2020": {
       "Antares": 96,
-      "Bairro não Informado": 7,
       "Barro Duro": 52,
       "Bebedouro": 25,
       "Benedito Bentes": 351,
@@ -487,7 +478,6 @@ module.exports = {
     },
     "2021": {
       "Antares": 77,
-      "Bairro não Informado": 0,
       "Barro Duro": 36,
       "Bebedouro": 13,
       "Benedito Bentes": 224,
@@ -541,7 +531,6 @@ module.exports = {
     },
     "2022": {
       "Antares": 56,
-      "Bairro não Informado": 0,
       "Barro Duro": 51,
       "Bebedouro": 10,
       "Benedito Bentes": 272,
