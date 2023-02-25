@@ -59,7 +59,7 @@
           legendDisplayDiv.appendChild(legendBoxDisplayDiv);
 
           legendDisplayDiv.innerHTML += `${hoodName}:`;
-          for (let entry of Object.entries({'Assaltos': value, 'Per capita': `${(robberyPopulationRatio * 2).toFixed(3)}%`})) {
+          for (let entry of Object.entries({'Assaltos': value, 'Per capita': `${(robberyPopulationRatio * 100).toFixed(3)}%`})) {
             legendDisplayDiv.innerHTML += `<br/>${entry[0]} = ${entry[1]}`;
           }
 
