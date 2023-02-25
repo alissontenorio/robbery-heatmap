@@ -1,7 +1,5 @@
 const express = require('express')
 const dotenv = require('dotenv')
-const path = require('path')
-const ejs = require('ejs');
 const robberyData = require('./static/assaltos_maceio_roubo_transeunte')
 const hoodData = require('./static/bairros_maceio')
 
