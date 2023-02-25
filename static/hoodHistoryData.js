@@ -211,8 +211,7 @@ export default {
         "std": 86.26486577114045,
         "min": 0,
         "max": 388
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2013": {
@@ -427,8 +426,7 @@ export default {
         "std": 91.73027257440367,
         "min": 0,
         "max": 442
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2014": {
@@ -643,8 +641,7 @@ export default {
         "std": 123.12230145248174,
         "min": 0,
         "max": 641
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2015": {
@@ -859,8 +856,7 @@ export default {
         "std": 111.46266031441898,
         "min": 0,
         "max": 553
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2016": {
@@ -1075,8 +1071,7 @@ export default {
         "std": 137.38487683485997,
         "min": 0,
         "max": 637
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2017": {
@@ -1291,8 +1286,7 @@ export default {
         "std": 156.9911533247088,
         "min": 0,
         "max": 763
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2018": {
@@ -1507,8 +1501,7 @@ export default {
         "std": 158.48922938916752,
         "min": 1,
         "max": 712
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2019": {
@@ -1723,8 +1716,7 @@ export default {
         "std": 139.5403339749619,
         "min": 0,
         "max": 769
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2020": {
@@ -1939,8 +1931,7 @@ export default {
         "std": 102.00756845219958,
         "min": 0,
         "max": 531
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2021": {
@@ -2155,8 +2146,7 @@ export default {
         "std": 82.71339881611658,
         "min": 0,
         "max": 454
-      },
-      "robberyNormalized": null
+      }
     }
   },
   "2022": {
@@ -2371,8 +2361,7 @@ export default {
         "std": 89.29608529870278,
         "min": 0,
         "max": 535
-      },
-      "robberyNormalized": null
+      }
     }
   }
 }

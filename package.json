@@ -8,7 +8,7 @@
     "start": "node app.js",
     "start-dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "preprocess-hood-history-data": "node ./scripts/preprocessHoodData.js"
+    "preprocess-hood-history-data": "node ./scripts/preprocessHoodData.cjs"
   },
   "keywords": [],
   "author": "",

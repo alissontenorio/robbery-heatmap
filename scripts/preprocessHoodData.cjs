@@ -1,5 +1,5 @@
-const robberyData = require('../static/assaltos_maceio_roubo_transeunte')
-const nj = require('../vendor/numjs.min')
+const robberyData = require('../static/assaltos_maceio_roubo_transeunte.cjs')
+const nj = require('../vendor/numjs.min.cjs')
 const path = require('path')
 
 let preprocessedData = Object.keys(robberyData).reduce((objYear, year) => {
@@ -26,8 +26,10 @@ let preprocessedData = Object.keys(robberyData).reduce((objYear, year) => {
 
     // augment data
     for (let hoodName in objYear[year]) {
-        let objHood = objYear[year][hoodName];
-        objHood['robberyNormalized'] = (objHood['robbery'] - objYear[year]['metrics']['robbery']['mean']) / objYear[year]['metrics']['robbery']['std'];
+        if (hoodName != 'metrics') {
+            let objHood = objYear[year][hoodName];
+            objHood['robberyNormalized'] = (objHood['robbery'] - objYear[year]['metrics']['robbery']['mean']) / objYear[year]['metrics']['robbery']['std'];
+        }
     }
 
     return objYear;
