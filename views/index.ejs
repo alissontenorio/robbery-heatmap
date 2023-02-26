@@ -156,7 +156,6 @@
         const infoWindow = new google.maps.InfoWindow();
 
         map.data.addListener("mouseover", (event) => {
-          console.log('oxe');
           const contentString = infoWindowContent(event);
           infoWindow.setContent(contentString);
           // Set infowindow in current position
