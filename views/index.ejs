@@ -14,19 +14,24 @@
       </div>
     </div>
 
+    <div>
+      <span>Bairro:</span>
+      <span id="hood-info-box">?</span>
+    </div>
+
     <div id="legend">
       <h2>Número de assaltos a transeuntes:</h2>
-      <div id="legend-content"></div>
+      <span id="legend-content"></span>
     </div>
 
     <div>
-      Número de assaltos a transeuntes:
-      <div id="density-info-box">?</div>
+      <span>Número de assaltos a transeuntes:</span>
+      <span id="density-info-box">?</span>
     </div>
-    <br>
+
     <div>
-      População:
-      <div id="population-info-box">?</div> pessoas
+      <span>População:</span>
+      <span id="population-info-box">?</span> pessoas
     </div>
     
     <script>
@@ -58,10 +63,7 @@
           
           legendDisplayDiv.appendChild(legendBoxDisplayDiv);
 
-          legendDisplayDiv.innerHTML += `${hoodName}:`;
-          for (let entry of Object.entries({'Assaltos': value, 'Per capita': `${(robberyPopulationRatio * 100).toFixed(3)}%`})) {
-            legendDisplayDiv.innerHTML += `<br/>${entry[0]} = ${entry[1]}`;
-          }
+          legendDisplayDiv.innerHTML += `${hoodName}: ${value} (per capita: ${(robberyPopulationRatio * 100).toFixed(3)}%)`;
 
           legendContent.appendChild(legendDisplayDiv);
         }
@@ -191,6 +193,7 @@
           let features = map.data.addGeoJson(hoods)
 
           map.data.addListener("mouseover", (event) => {
+            document.getElementById("hood-info-box").textContent = event.feature.getProperty('Bairro');
             document.getElementById("density-info-box").textContent = event.feature.getProperty('Value');
             document.getElementById("population-info-box").textContent = event.feature.getProperty('População 2010');
           });
