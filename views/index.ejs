@@ -159,10 +159,10 @@
           const contentString = infoWindowContent(event);
           infoWindow.setContent(contentString);
           // Set infowindow in current position
-          // infoWindow.setPosition(event.latLng);
+          infoWindow.setPosition(event.latLng);
 
           // Set infowindow in center of hood
-          infoWindow.setPosition(event.feature.getProperty('CenterPoint'));
+          // infoWindow.setPosition(event.feature.getProperty('CenterPoint'));
           infoWindow.open(map);
         });
 
