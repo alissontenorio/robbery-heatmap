@@ -156,6 +156,7 @@
         const infoWindow = new google.maps.InfoWindow();
 
         map.data.addListener("mouseover", (event) => {
+          console.log('oxe');
           const contentString = infoWindowContent(event);
           infoWindow.setContent(contentString);
           // Set infowindow in current position
@@ -168,6 +169,12 @@
 
         map.data.addListener("mouseout", (event) => {
           infoWindow.close();
+        });
+
+        map.data.addListener("mousemove", (event) => {
+          if(infoWindow) {
+            infoWindow.setPosition(event.latLng);
+          }
         });
       }
 
