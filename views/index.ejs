@@ -190,7 +190,7 @@
               })
             })
           })
-          let features = map.data.addGeoJson(hoods)
+          let features = map.data.addGeoJson(hoods).sort((f1, f2) => f1.getProperty('Bairro').localeCompare(f2.getProperty('Bairro')))
 
           map.data.addListener("mouseover", (event) => {
             document.getElementById("hood-info-box").textContent = event.feature.getProperty('Bairro');
