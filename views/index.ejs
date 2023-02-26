@@ -14,24 +14,9 @@
       </div>
     </div>
 
-    <div>
-      <span>Bairro:</span>
-      <span id="hood-info-box">?</span>
-    </div>
-
     <div id="legend">
       <h2>Número de assaltos a transeuntes:</h2>
       <span id="legend-content"></span>
-    </div>
-
-    <div>
-      <span>Número de assaltos a transeuntes:</span>
-      <span id="density-info-box">?</span>
-    </div>
-
-    <div>
-      <span>População:</span>
-      <span id="population-info-box">?</span> pessoas
     </div>
     
     <script>
@@ -108,17 +93,24 @@
         }
       }
 
+      function calculatePolygonCenterPoint(feature) {
+        const polygonCoords = feature.getGeometry();
+        const bounds = new google.maps.LatLngBounds();
+        polygonCoords.forEachLatLng(function(element,index){bounds.extend(element)});
+        return bounds.getCenter();
+      }
+
       function updateFeatures(map, features, dataByHood) {
         for (feature of features) {
-          let hoodName = feature.getProperty('Bairro');
-          let hoodData = dataByHood[hoodName];
+          const hoodName = feature.getProperty('Bairro');
+          const hoodData = dataByHood[hoodName];
 
           feature.setProperty('Data', hoodData);
 
           // TODO: deprecate
-          let attrName = 'robbery';
+          const attrName = 'robbery';
           let attrValue = hoodData && hoodData[attrName];
-          let attrValueNormalized = hoodData && hoodData[`${attrName}Normalized`];
+          const attrValueNormalized = hoodData && hoodData[`${attrName}Normalized`];
 
           if (typeof(attrValue) !== 'number') {
             console.warn(`Couldn't find '${attrName}' data for '${hoodName}'.`);
@@ -128,6 +120,7 @@
           feature.setProperty('ValueDomain', attrName);
           feature.setProperty('Value', attrValue);
           feature.setProperty('ValueNormalized', attrValueNormalized || attrValue);
+          feature.setProperty('CenterPoint', calculatePolygonCenterPoint(feature));
         }
 
         map.data.setStyle((feature) => {
@@ -142,19 +135,55 @@
         })
       }
 
+      function infoWindowContent(event) {
+        return '<div id="content">'+
+          '<div>'+
+          '<span>Bairro:</span>'+
+          `<span id="hood-info-box">${event.feature.getProperty('Bairro')}</span>`+
+          '</div>'+
+          '<div>'+
+          '<span>Assaltos a transeuntes:</span>'+
+          `<span id="density-info-box">${event.feature.getProperty('Value')}</span>`+
+          '</div>'+
+          '<div>'+
+          '<span>População:</span>'+
+          `<span id="population-info-box">${event.feature.getProperty('População 2010')}</span> pessoas`+
+          '</div>';
+      }
+
+      // Tooltip for hood
+      function createInfoWindow(map) {
+        const infoWindow = new google.maps.InfoWindow();
+
+        map.data.addListener("mouseover", (event) => {
+          const contentString = infoWindowContent(event);
+          infoWindow.setContent(contentString);
+          // Set infowindow in current position
+          // infoWindow.setPosition(event.latLng);
+
+          // Set infowindow in center of hood
+          infoWindow.setPosition(event.feature.getProperty('CenterPoint'));
+          infoWindow.open(map);
+        });
+
+        map.data.addListener("mouseout", (event) => {
+          infoWindow.close();
+        });
+      }
+
       // Initialize and display the map
       function initMap() {
         // Maceió bounds
-        let selectedCityBounds = new google.maps.LatLngBounds(
+        const selectedCityBounds = new google.maps.LatLngBounds(
           new google.maps.LatLng(-9.722334881080501, -35.818859918457036), // southwest corner
           new google.maps.LatLng(-9.46099520993466, -35.541455133300786) // northeast corner
         )
 
         // Set the location to display on the map
-        var location = selectedCityBounds.getCenter()
+        const location = selectedCityBounds.getCenter()
 
         // Create a new map object centered on the location
-        var map = new google.maps.Map(document.getElementById('map'), {
+        const map = new google.maps.Map(document.getElementById('map'), {
           zoom: 11,
           center: location,
           mapTypeControl: false,
@@ -350,22 +379,22 @@
 
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('legend'));
 
-        let featuresPromise = fetchHoodGeoJSON().then(hoods => {
+        const featuresPromise = fetchHoodGeoJSON().then(hoods => {
           hoods.features = hoods.features.filter(feature => {
             return !feature.geometry.coordinates.some(coords => {
               return coords.some(coord => {
-                let point = {lat: coord[1], lng: coord[0]}
+                const point = {lat: coord[1], lng: coord[0]}
                 return !selectedCityBounds.contains(point);
               })
             })
           })
-          let features = map.data.addGeoJson(hoods).sort((f1, f2) => f1.getProperty('Bairro').localeCompare(f2.getProperty('Bairro')))
-
-          map.data.addListener("mouseover", (event) => {
-            document.getElementById("hood-info-box").textContent = event.feature.getProperty('Bairro');
-            document.getElementById("density-info-box").textContent = event.feature.getProperty('Value');
-            document.getElementById("population-info-box").textContent = event.feature.getProperty('População 2010');
-          });
+          const features = map.data.addGeoJson(hoods).sort(
+            (f1, f2) => {
+              f1.getProperty('Bairro').localeCompare(f2.getProperty('Bairro'))
+            }
+          );
+                    
+          createInfoWindow(map);
 
           return features;
         });
@@ -389,7 +418,7 @@
             yearsDataList.appendChild(newOption);
           }
 
-          let features = await featuresPromise;
+          const features = await featuresPromise;
 
           yearsInput.addEventListener('input', (evt) => {
             updateFeatures(map, features, hoodHistory[yearsInput.value]);

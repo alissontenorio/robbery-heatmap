@@ -61,3 +61,8 @@ datalist.years {
   display: flex;
   margin-bottom: 5px;
 }
+
+/* Remove google maps close button */
+button.gm-ui-hover-effect {
+  visibility: hidden;
+}
