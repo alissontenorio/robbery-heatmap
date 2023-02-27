@@ -94,10 +94,6 @@
         }
       }
 
-      function calculatePolygonCenterPoint(layer) {
-        return layer.getCenter();
-      }
-
       function updateFeatures(map, featureGroup, dataByHood) {
         for (let layer of featureGroup.getLayers()) {
           let hoodName = layer.feature.properties['Bairro'];
@@ -118,7 +114,7 @@
           layer.feature.properties['ValueDomain'] = attrName;
           layer.feature.properties['Value'] = attrValue;
           layer.feature.properties['ValueNormalized'] = attrValueNormalized || attrValue;
-          layer.feature.properties['CenterPoint'] = calculatePolygonCenterPoint(layer);
+          layer.feature.properties['CenterPoint'] = layer.getCenter();
         }
 
         featureGroup.setStyle((feature) => {
@@ -226,13 +222,6 @@
             .sort((f1, f2) => f1.properties['Bairro'].localeCompare(f2.properties['Bairro']))
 
           let featureGroup = new L.geoJson(hoods).addTo(map);
-
-          // featureGroup.addEventListener("mouseover", (event) => {
-          //   console.log(event)
-          //   document.getElementById("hood-info-box").textContent = event.layer.feature.properties['Bairro'];
-          //   document.getElementById("density-info-box").textContent = event.layer.feature.properties['Value'];
-          //   document.getElementById("population-info-box").textContent = event.layer.feature.properties['População 2010'];
-          // });
 
           createInfoWindow(map, featureGroup);
 
