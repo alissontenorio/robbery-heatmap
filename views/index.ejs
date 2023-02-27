@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Roubos</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
     <link rel="stylesheet" href="/css/style.css">
   </head>
   <body>
@@ -71,13 +72,13 @@
         return [r, g, b];
       }
 
-      function addElementsToLegend(features, robberyByHood) {
+      function addElementsToLegend(featureGroup, robberyByHood) {
         const legendContent = document.getElementById('legend-content');
         legendContent.innerHTML = '';
-        for (feature of features) {
-          const hoodName = feature.getProperty('Bairro');
-          const value = feature.getProperty('Value');
-          const robberyPopulationRatio = feature.getProperty('Data')['robberyPopulationRatio'];
+        for (let layer of featureGroup.getLayers()) {
+          const hoodName = layer.feature.properties['Bairro'];
+          const value = layer.feature.properties['Value'];
+          const robberyPopulationRatio = layer.feature.properties['Data']['robberyPopulationRatio'];
           const legendBoxDisplayDiv = document.createElement('div');
           legendBoxDisplayDiv.className = 'legend-box';
           // legendBoxDisplayDiv.style = 'background: #65BA4A;';
@@ -93,19 +94,16 @@
         }
       }
 
-      function calculatePolygonCenterPoint(feature) {
-        const polygonCoords = feature.getGeometry();
-        const bounds = new google.maps.LatLngBounds();
-        polygonCoords.forEachLatLng(function(element,index){bounds.extend(element)});
-        return bounds.getCenter();
+      function calculatePolygonCenterPoint(layer) {
+        return layer.getCenter();
       }
 
-      function updateFeatures(map, features, dataByHood) {
-        for (feature of features) {
-          const hoodName = feature.getProperty('Bairro');
-          const hoodData = dataByHood[hoodName];
+      function updateFeatures(map, featureGroup, dataByHood) {
+        for (let layer of featureGroup.getLayers()) {
+          let hoodName = layer.feature.properties['Bairro'];
+          let hoodData = dataByHood[hoodName];
 
-          feature.setProperty('Data', hoodData);
+          layer.feature.properties['Data'] = hoodData;
 
           // TODO: deprecate
           const attrName = 'robbery';
@@ -117,17 +115,17 @@
           }
 
           attrValue ||= 0;
-          feature.setProperty('ValueDomain', attrName);
-          feature.setProperty('Value', attrValue);
-          feature.setProperty('ValueNormalized', attrValueNormalized || attrValue);
-          feature.setProperty('CenterPoint', calculatePolygonCenterPoint(feature));
+          layer.feature.properties['ValueDomain'] = attrName;
+          layer.feature.properties['Value'] = attrValue;
+          layer.feature.properties['ValueNormalized'] = attrValueNormalized || attrValue;
+          layer.feature.properties['CenterPoint'] = calculatePolygonCenterPoint(layer);
         }
 
-        map.data.setStyle((feature) => {
-          const featureDensityLevel = Math.tanh(feature.getProperty('Data')['robberyPopulationRatioNormalized'] || 0) * .5 + .5;
+        featureGroup.setStyle((feature) => {
+          const featureDensityLevel = Math.tanh(feature.properties['Data']['robberyPopulationRatioNormalized'] || 0) * .5 + .5;
           return {
-            strokeColor: "black",
-            strokeWeight: .5,
+            color: "black",
+            weight: .5,
             fillColor: getHeatmapColor(featureDensityLevel, 0, 1),
             fillOpacity: 0.5
             // fillOpacity: Math.log(feature.getProperty('Value') + 1)
@@ -135,44 +133,47 @@
         })
       }
 
-      function infoWindowContent(event) {
+      function infoWindowContent(feature) {
         return '<div id="content">'+
           '<div>'+
           '<span>Bairro:</span>'+
-          `<span id="hood-info-box">${event.feature.getProperty('Bairro')}</span>`+
+          `<span id="hood-info-box">${feature.properties['Bairro']}</span>`+
           '</div>'+
           '<div>'+
           '<span>Assaltos a transeuntes:</span>'+
-          `<span id="density-info-box">${event.feature.getProperty('Value')}</span>`+
+          `<span id="density-info-box">${feature.properties['Value']}</span>`+
           '</div>'+
           '<div>'+
           '<span>População:</span>'+
-          `<span id="population-info-box">${event.feature.getProperty('População 2010')}</span> pessoas`+
+          `<span id="population-info-box">${feature.properties['População 2010']}</span> pessoas`+
           '</div>';
       }
 
       // Tooltip for hood
-      function createInfoWindow(map) {
-        const infoWindow = new google.maps.InfoWindow();
+      function createInfoWindow(map, featureGroup) {
+        const infoWindow = new L.Popup(map.getCenter());
 
-        map.data.addListener("mouseover", (event) => {
-          const contentString = infoWindowContent(event);
+        featureGroup.addEventListener("mouseover", (event) => {
+          const contentString = infoWindowContent(event.layer.feature);
           infoWindow.setContent(contentString);
           // Set infowindow in current position
-          infoWindow.setPosition(event.latLng);
+          infoWindow.setLatLng(event.latlng);
 
           // Set infowindow in center of hood
-          // infoWindow.setPosition(event.feature.getProperty('CenterPoint'));
-          infoWindow.open(map);
+          // infoWindow.setLatLng(event.feature.properties['CenterPoint']);
+          if (!infoWindow.isOpen())
+            infoWindow.openOn(map);
         });
 
-        map.data.addListener("mouseout", (event) => {
+        featureGroup.addEventListener("mouseout", (event) => {
           infoWindow.close();
         });
 
-        map.data.addListener("mousemove", (event) => {
+        featureGroup.addEventListener("mousemove", (event) => {
           if(infoWindow) {
-            infoWindow.setPosition(event.latLng);
+            if (!infoWindow.isOpen())
+              infoWindow.openOn(map);
+            infoWindow.setLatLng(event.latlng);
           }
         });
       }
@@ -180,229 +181,62 @@
       // Initialize and display the map
       function initMap() {
         // Maceió bounds
-        const selectedCityBounds = new google.maps.LatLngBounds(
-          new google.maps.LatLng(-9.722334881080501, -35.818859918457036), // southwest corner
-          new google.maps.LatLng(-9.46099520993466, -35.541455133300786) // northeast corner
+        let selectedCityBounds = new L.LatLngBounds(
+          new L.LatLng(-9.722334881080501, -35.818859918457036), // southwest corner
+          new L.LatLng(-9.46099520993466, -35.541455133300786) // northeast corner
         )
 
-        // Set the location to display on the map
-        const location = selectedCityBounds.getCenter()
-
         // Create a new map object centered on the location
-        const map = new google.maps.Map(document.getElementById('map'), {
+        let map = new L.map(document.getElementById('map'), {
           zoom: 11,
-          center: location,
-          mapTypeControl: false,
-          streetViewControl: false,
-          styles: [
-            {
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#f5f5f5"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.icon",
-              "stylers": [
-                {
-                  "visibility": "off"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#616161"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.text.stroke",
-              "stylers": [
-                {
-                  "color": "#f5f5f5"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative.land_parcel",
-              "elementType": "labels",
-              "stylers": [
-                {
-                  "visibility": "off"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative.land_parcel",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#bdbdbd"
-                }
-              ]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#eeeeee"
-                }
-              ]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "labels.text",
-              "stylers": [
-                {
-                  "visibility": "off"
-                }
-              ]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#e5e5e5"
-                }
-              ]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#9e9e9e"
-                }
-              ]
-            },
-            {
-              "featureType": "road",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#ffffff"
-                }
-              ]
-            },
-            {
-              "featureType": "road.arterial",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#dadada"
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#616161"
-                }
-              ]
-            },
-            {
-              "featureType": "road.local",
-              "elementType": "labels",
-              "stylers": [
-                {
-                  "visibility": "off"
-                }
-              ]
-            },
-            {
-              "featureType": "road.local",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#9e9e9e"
-                }
-              ]
-            },
-            {
-              "featureType": "transit.line",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#e5e5e5"
-                }
-              ]
-            },
-            {
-              "featureType": "transit.station",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#eeeeee"
-                }
-              ]
-            },
-            {
-              "featureType": "water",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#c9c9c9"
-                }
-              ]
-            },
-            {
-              "featureType": "water",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#9e9e9e"
-                }
-              ]
-            }
-          ]
+          center: selectedCityBounds.getCenter()
         });
 
-        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById('legend'));
+        let tileLayer = new L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
 
-        const featuresPromise = fetchHoodGeoJSON().then(hoods => {
-          hoods.features = hoods.features.filter(feature => {
-            return !feature.geometry.coordinates.some(coords => {
-              return coords.some(coord => {
-                const point = {lat: coord[1], lng: coord[0]}
-                return !selectedCityBounds.contains(point);
+        L.Control.Hoods = L.Control.extend({
+            onAdd: function(map) {
+                return document.getElementById('legend');
+            },
+
+            onRemove: function(map) {
+                // Nothing to do here
+            }
+        });
+
+        L.control.hoods = function(opts) {
+            return new L.Control.Hoods(opts);
+        }
+
+        L.control.hoods({ position: 'topright' }).addTo(map);
+
+        let featureGroupPromise = fetchHoodGeoJSON().then(hoods => {
+          hoods.features = hoods.features
+            .filter(feature => {
+              return !feature.geometry.coordinates.some(coords => {
+                return coords.some(coord => {
+                  let point = {lat: coord[1], lng: coord[0]};
+                  return !selectedCityBounds.contains(point);
+                })
               })
             })
-          })
-          const features = map.data.addGeoJson(hoods).sort(
-            (f1, f2) => {
-              f1.getProperty('Bairro').localeCompare(f2.getProperty('Bairro'))
-            }
-          );
-                    
-          createInfoWindow(map);
+            .sort((f1, f2) => f1.properties['Bairro'].localeCompare(f2.properties['Bairro']))
 
-          return features;
+          let featureGroup = new L.geoJson(hoods).addTo(map);
+
+          // featureGroup.addEventListener("mouseover", (event) => {
+          //   console.log(event)
+          //   document.getElementById("hood-info-box").textContent = event.layer.feature.properties['Bairro'];
+          //   document.getElementById("density-info-box").textContent = event.layer.feature.properties['Value'];
+          //   document.getElementById("population-info-box").textContent = event.layer.feature.properties['População 2010'];
+          // });
+
+          createInfoWindow(map, featureGroup);
+
+          return featureGroup;
         });
 
         fetchHoodHistoryJSON().then(async hoodHistory => {
@@ -424,26 +258,19 @@
             yearsDataList.appendChild(newOption);
           }
 
-          const features = await featuresPromise;
+          let featureGroup = await featureGroupPromise;
 
           yearsInput.addEventListener('input', (evt) => {
-            updateFeatures(map, features, hoodHistory[yearsInput.value]);
-            addElementsToLegend(features, hoodHistory);
+            updateFeatures(map, featureGroup, hoodHistory[yearsInput.value]);
+            addElementsToLegend(featureGroup, hoodHistory);
           });
 
           yearsInput.dispatchEvent(new Event('input'));
 
           document.querySelector('#map-controls').removeAttribute('hidden');
         });
-
-        // Add a marker for the location
-        // var marker = new google.maps.Marker({
-        //   position: location,
-        //   map: map,
-        //   title: 'Maceio - AL'
-        // });
       }
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= GMAPS_API_KEY %>&callback=initMap"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin="" onload="initMap()"></script>
   </body>
 </html>

@@ -43,6 +43,8 @@ datalist.years {
   overflow-y: scroll;
   max-height: 70%;
   padding: 10px;
+  font-size: smaller;
+  height: 400px;
 }
 
 #legend-content {
