@@ -195,7 +195,10 @@
 
         L.Control.Hoods = L.Control.extend({
             onAdd: function(map) {
-                return document.getElementById('legend');
+              let elt = document.getElementById('legend');
+              // prevent to propagate mouse wheel event affecting map zoom in/out
+              elt.addEventListener('wheel', (evt) => { evt.stopPropagation(); }, { passive: false })
+              return elt;
             },
 
             onRemove: function(map) {
