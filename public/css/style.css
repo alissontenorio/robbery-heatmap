@@ -37,7 +37,7 @@ datalist.years {
 
 #map {
   width: 100%;
-  height: 500px;
+  height: 100%;
   flex-grow: 1;
 }
 

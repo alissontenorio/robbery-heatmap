@@ -178,13 +178,13 @@
       function initMap() {
         // Maceió bounds
         let selectedCityBounds = new L.LatLngBounds(
-          new L.LatLng(-9.722334881080501, -35.818859918457036), // southwest corner
-          new L.LatLng(-9.46099520993466, -35.541455133300786) // northeast corner
+          {"lat": -9.442970318322761,"lng": -35.42163848876954}, // northeast corner
+          {"lat": -9.753051364171686,"lng": -35.90915679931641}  // southwest corner
         )
 
         // Create a new map object centered on the location
         let map = new L.map(document.getElementById('map'), {
-          zoom: 11,
+          zoom: 12,
           center: selectedCityBounds.getCenter()
         });
 
@@ -260,6 +260,11 @@
           yearsInput.dispatchEvent(new Event('input'));
 
           document.querySelector('#map-controls').removeAttribute('hidden');
+          map.invalidateSize();
+        });
+
+        document.querySelector('#map').addEventListener('resize', (evt) => {
+          map.invalidateSize();
         });
       }
     </script>
