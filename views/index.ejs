@@ -121,7 +121,7 @@
           const featureDensityLevel = Math.tanh(feature.properties['Data']['robberyPopulationRatioNormalized'] || 0) * .5 + .5;
           return {
             color: "black",
-            weight: .5,
+            weight: .25,
             fillColor: getHeatmapColor(featureDensityLevel, 0, 1),
             fillOpacity: 0.5
             // fillOpacity: Math.log(feature.getProperty('Value') + 1)
@@ -188,7 +188,12 @@
           center: selectedCityBounds.getCenter()
         });
 
-        let tileLayer = new L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        let tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+        // let tileUrl = 'http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png';
+        // let tileUrl = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
+        // let tileUrl = 'https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg';
+        // let tileUrl = 'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg';
+        let tileLayer = new L.tileLayer(tileUrl, {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
@@ -202,7 +207,7 @@
             },
 
             onRemove: function(map) {
-                // Nothing to do here
+              // Nothing to do here
             }
         });
 
@@ -211,6 +216,24 @@
         }
 
         L.control.hoods({ position: 'topright' }).addTo(map);
+
+        L.Control.HeatmapLegend = L.Control.extend({
+            onAdd: function(map) {
+              let elt = document.createElement('img');
+              elt.src = 'images/heatmap-scale.jpg';
+              return elt;
+            },
+
+            onRemove: function(map) {
+              // Nothing to do here
+            }
+        });
+
+        L.control.heatmapLegend = function(opts) {
+            return new L.Control.HeatmapLegend(opts);
+        }
+
+        L.control.heatmapLegend({ position: 'bottomleft'}).addTo(map);
 
         let featureGroupPromise = fetchHoodGeoJSON().then(hoods => {
           hoods.features = hoods.features
@@ -263,9 +286,7 @@
           map.invalidateSize();
         });
 
-        document.querySelector('#map').addEventListener('resize', (evt) => {
-          map.invalidateSize();
-        });
+        document.querySelector('#map').addEventListener('resize', (evt) => map.invalidateSize());
       }
     </script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin="" onload="initMap()"></script>
