@@ -73,3 +73,7 @@ datalist.years {
 button.gm-ui-hover-effect {
   visibility: hidden;
 }
+
+img.leaflet-tile {
+  filter: grayscale(100%);
+}
